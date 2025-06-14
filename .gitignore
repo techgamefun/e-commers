@@ -1,0 +1,18 @@
+# Backend (Node.js/Express)
+node_modules/
+.env
+*.log
+npm-debug.log*
+/backend/uploads/  # Ignore uploaded files (if any)
+
+# Frontend (React)
+/frontend/node_modules/
+/frontend/.env
+/frontend/.env.local
+/frontend/build/
+/frontend/.DS_Store
+
+# General (IDE/OS)
+.vscode/
+.idea/
+.DS_Store
