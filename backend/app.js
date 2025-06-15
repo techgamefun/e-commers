@@ -11,6 +11,7 @@ connectDB();
 
 //middlewares
 app.use(express.json());
+app.use(express.urlencoded());
 
 // Routes
 app.use("/api/auth", authRoutes);

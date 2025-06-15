@@ -9,6 +9,10 @@ const imageSchema = new mongoose.Schema({
       message: "Image URL must be HTTPS",
     },
   },
+  public_id: {
+    type: String,
+    required: true,
+  },
   altText: {
     type: String,
     maxlength: 125,
@@ -26,7 +30,7 @@ const imageSchema = new mongoose.Schema({
 const productSchema = new mongoose.Schema(
   {
     // Product name
-    name: {
+    title: {
       type: String,
       required: true,
       maxlength: 150,
@@ -36,26 +40,26 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      maxlength: 500,
+      maxlength: 2000, // Increased for more detail
     },
     // Base price stored in paise to avoid floating-point issues (100 paise = 1 INR)
-    basePricePaise: {
+    basePrice: {
       type: Number,
       required: true,
       min: 0,
-      set: (paise) => Math.round(paise), // Ensure integer paise
-      get: (paise) => (paise / 100).toFixed(2), // Convert to decimal rupees
+      set: (Price) => Math.round(Price),
     },
 
     // Products images
-    images: imageSchema,
+    images: [imageSchema],
+
     // Currency information (ISO 4217 codes) with INR as default
     currency: {
       type: String,
       required: true,
       default: "INR",
       uppercase: true,
-      enum: ["INR", "USD", "EUR", "GBP", "AED"], // Common currencies for Indian context
+      enum: ["INR", "USD", "EUR", "GBP", "AED"],
     },
 
     stock: {
@@ -82,21 +86,21 @@ const productSchema = new mongoose.Schema(
         },
       },
       validUntil: Date,
-      discountCode: String,
     },
 
-    // Computed sale price (virtual)
-    salePricePaise: {
-      type: Number,
-      default: function () {
-        const amountDiscount = this.discount.amountOffPaise || 0;
-        const percentDiscount =
-          this.basePricePaise * ((this.discount.percentOff || 0) / 100);
-        return Math.max(
-          0,
-          this.basePricePaise - Math.max(amountDiscount, percentDiscount)
-        );
+    // GST (Goods and Services Tax) information - ADDED THIS SECTION
+    gst: {
+      rate: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 0,
       },
+      includedInPrice: {
+        type: Boolean,
+        default: true, // Assuming price often includes GST by default
+      },
+      hsnCode: String, // Harmonized System of Nomenclature code
     },
   },
   {
@@ -106,45 +110,74 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+// Virtual for computed sale price
+productSchema.virtual("salePrice").get(function () {
+  const amountDiscount = this.discount.amountOffPaise || 0;
+  const percentDiscount =
+    this.basePrice * ((this.discount.percentOff || 0) / 100);
+
+  // Apply the highest discount type, if that's the intended logic
+  const actualDiscount = Math.max(amountDiscount, percentDiscount);
+
+  return Math.max(0, this.basePrice - actualDiscount);
+});
+
 // Virtual for formatted prices with Indian numbering system
 productSchema.virtual("formattedBasePrice").get(function () {
-  return formatCurrency(this.basePricePaise / 100, this.currency);
+  return formatCurrency(this.basePrice, this.currency);
 });
 
 productSchema.virtual("formattedSalePrice").get(function () {
-  return formatCurrency(this.salePricePaise / 100, this.currency);
+  // Access the virtual 'salePrice' directly which returns rupees
+  return formatCurrency(this.salePrice, this.currency);
 });
 
 // Virtual for price including GST (if not already included)
-productSchema.virtual("finalPricePaise").get(function () {
-  if (this.gst.includedInPrice) return this.salePricePaise;
-  return Math.round(this.salePricePaise * (1 + this.gst.rate / 100));
+productSchema.virtual("finalPrice").get(function () {
+  // Access the virtual 'salePrice' for the base of this calculation
+  if (this.gst.includedInPrice) {
+    return this.salePrice;
+  } else if (this.gst.rate) {
+    const gstAmount = this.salePrice * (this.gst.rate / 100);
+    return Math.round(this.salePrice + gstAmount);
+  }
+  return this.salePrice;
+});
+
+productSchema.virtual("formattedFinalPrice").get(function () {
+  // Access the virtual 'finalPrice' which returns paise
+  return formatCurrency(this.finalPrice, this.currency);
 });
 
 // Indian-specific currency formatting
 function formatCurrency(amount, currency) {
-  if (currency === "INR") {
-    return new Intl.NumberFormat("en-IN", {
+  // Default to INR if currency is not provided or invalid
+  const validCurrency =
+    currency && ["INR", "USD", "EUR", "GBP", "AED"].includes(currency)
+      ? currency
+      : "INR";
+
+  try {
+    if (validCurrency === "INR") {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    }
+
+    // Fallback for other currencies
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "INR",
+      currency: validCurrency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+  } catch (error) {
+    // If formatting fails for any reason, return a simple formatted string
+    return `${validCurrency} ${amount.toFixed(2)}`;
   }
-
-  // Fallback for other currencies
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
 }
 
-// Helper method to apply discount
-productSchema.methods.applyDiscount = function (discountCode) {
-  // Logic to validate and apply discount code
-  // Would typically query a discounts collection
-};
-
-module.export = mongoose.model("Product", productSchema);
+module.exports = mongoose.model("Product", productSchema);
