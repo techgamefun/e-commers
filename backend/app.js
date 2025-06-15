@@ -4,6 +4,7 @@ const app = express();
 const connectDB = require("./config/DB");
 const authRoutes = require("./routes/auth.route");
 const productRoutes = require("./routes/product.route");
+const cors = require("cors");
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ connectDB();
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded());
+app.use(cors());
+
 
 // Routes
 app.use("/api/auth", authRoutes);

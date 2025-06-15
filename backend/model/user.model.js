@@ -51,10 +51,10 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: 8,
     },
-    roles: {
-      type: [String],
+    role: {
+      type: String,
       enum: ["user", "admin", "vendor"],
-      default: ["user"],
+      default: "user",
     },
     address: {
       // Combined billing and shipping address
