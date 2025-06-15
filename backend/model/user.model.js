@@ -82,15 +82,15 @@ userSchema.pre("save", async function (next) {
 
 // Middleware: Hash password for findOneAndUpdate
 userSchema.pre("findOneAndUpdate", async function (next) {
-    if (this._update.password) {
-      try {
-        this._update.password = await bcrypt.hash(this._update.password, 10);
-      } catch (error) {
-        return next(error); // Handle error
-      }
+  if (this._update.password) {
+    try {
+      this._update.password = await bcrypt.hash(this._update.password, 10);
+    } catch (error) {
+      return next(error); // Handle error
     }
-    next();
-  });
+  }
+  next();
+});
 
 // Method: Verify password
 userSchema.methods.verifyPassword = async function (password) {
@@ -98,4 +98,5 @@ userSchema.methods.verifyPassword = async function (password) {
 };
 
 // Export the User model
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = User;

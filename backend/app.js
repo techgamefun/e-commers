@@ -9,6 +9,9 @@ dotenv.config();
 
 connectDB();
 
+//middlewares
+app.use(express.json());
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/product", productRoutes);

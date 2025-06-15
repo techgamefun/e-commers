@@ -1,6 +1,6 @@
 # Backend (Node.js/Express)
-/backend/node_modules/
-/backend/.env
+node_modules/
+.env
 *.log
 npm-debug.log*
 /backend/uploads/  # Ignore uploaded files (if any)
