@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.png"
+import logo from "../assets/logo.png";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -53,7 +53,9 @@ const Navbar = () => {
             {/* User Auth */}
             {user ? (
               <div className="hidden md:flex items-center">
-                <span className="text-gray-600 mr-4">Hello, {user.name}</span>
+                <span className="text-gray-600 mr-4">
+                  Hello, {user.firstName}
+                </span>
                 <button
                   onClick={logout}
                   className="text-gray-500 hover:text-gray-700 text-sm font-medium"
@@ -148,7 +150,7 @@ const Navbar = () => {
             {user ? (
               <>
                 <div className="pl-3 pr-4 py-2 text-gray-600">
-                  Logged in as {user.name}
+                  Logged in as {user.firstName}
                 </div>
                 <button
                   onClick={() => {

@@ -50,7 +50,7 @@ exports.signup = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.roles,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -117,7 +117,7 @@ exports.login = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.roles,
+        role: user.role || "user",
       },
     });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,11 +17,15 @@ function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await mockAuthAPI(email, password);
-
+      const response = await api.post("auth/login", { email, password });
       // Assuming the API returns user data on success
-      login(response.user);
 
+      console.log(response.data.user.role);
+      login(response.data.user);
+
+      if (response.data.user.role == "admin") {
+        return navigate("/admin");
+      }
       // Redirect to home page or intended destination
       navigate("/");
     } catch (err) {
@@ -28,35 +33,6 @@ function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Mock authentication function (replace with real API call)
-  const mockAuthAPI = (email, password) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (email === "admin@example.com" && password === "admin123") {
-          resolve({
-            user: {
-              id: "1",
-              email,
-              name: "Admin User",
-              role: "admin",
-            },
-          });
-        } else if (email && password.length >= 6) {
-          resolve({
-            user: {
-              id: "2",
-              email,
-              name: email.split("@")[0],
-              role: "user",
-            },
-          });
-        } else {
-          reject(new Error("Invalid email or password"));
-        }
-      }, 1000);
-    });
   };
 
   return (

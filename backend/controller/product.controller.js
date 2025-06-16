@@ -118,3 +118,60 @@ exports.getallProducts = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    const { productId } = req.body; // Get the _id from the request body
+    console.log(productId);
+
+    if (!productId) {
+      return res
+        .status(400)
+        .json({ message: "Product ID is required in the request body." });
+    }
+
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Product deleted successfully!", deletedProduct });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error. Please try again later." });
+  }
+};
+
+exports.updateProducts = async (req, res, next) => {
+  try {
+    const { _id, ...updateData } = req.body; // Get _id and the rest of the update data
+
+    if (!_id) {
+      return res
+        .status(400)
+        .json({ message: "Product ID is required in the request body." });
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(_id, updateData, {
+      new: true,
+    });
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Product updated successfully!", updatedProduct });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error. Please try again later." });
+  }
+};

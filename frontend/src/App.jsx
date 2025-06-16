@@ -7,6 +7,7 @@ import ProductBuyPage from "./pages/ProductBuyPage";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
 import AdminPage from "./pages/AdminPage";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 function App() {
   return (
@@ -14,10 +15,17 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePageLayout />}>
           <Route index element={<HomePage />} />
-          <Route path="buy" element={<ProductBuyPage />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="admin" element={<AdminPage />} />
+          <Route path="/buy" element={<ProductBuyPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </AuthProvider>
