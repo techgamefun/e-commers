@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const { v4: uuidv4 } = require("uuid");
 
 const orderItemSchema = new Schema(
   {
@@ -29,6 +30,7 @@ const orderSchema = new Schema(
       type: String,
       unique: true,
       index: true,
+      default: () => uuidv4(),
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -98,7 +100,6 @@ const orderSchema = new Schema(
       ],
       default: "pending",
     },
-
   },
   {
     timestamps: true,
@@ -121,11 +122,6 @@ orderSchema.virtual("itemCount").get(function () {
 
 // Pre-save hooks
 orderSchema.pre("save", async function (next) {
-  if (!this.orderNumber) {
-    const count = await this.constructor.countDocuments();
-    this.orderNumber = `ORD-${(count + 1).toString().padStart(6, "0")}`;
-  }
-
   if (this.isModified("items")) {
     this.subtotal = this.items.reduce(
       (sum, item) => sum + item.priceAtOrder * item.quantity,
