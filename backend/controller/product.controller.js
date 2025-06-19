@@ -7,7 +7,11 @@ const { sanitizeProductInput } = require("../utils/sanitize.util");
 exports.createProduct = async (req, res, next) => {
   try {
     // Sanitizing Product Input data
+
+    console.log(req.body);
     const sanitizeData = sanitizeProductInput(req.body);
+
+    console.log(sanitizeData);
 
     // Validating Product Input Data
     const validationError = validateProductInput(sanitizeData);
@@ -21,6 +25,8 @@ exports.createProduct = async (req, res, next) => {
 
     const { title, description, basePrice, currency, stock, discount } =
       sanitizeData;
+
+    console.log(title, description, basePrice, currency, stock, discount);
 
     // Get images alt texts data from request body
     const { imageAltTexts } = req.body;

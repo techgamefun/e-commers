@@ -9,21 +9,18 @@ exports.sanitizeProductInput = (data) => {
   };
 
   // Handle discount data
-  if (
-    data.discount &&
-    (data.discount.amountOffPaise || data.discount.percentOff)
-  ) {
+  if (data["discount.amountOff"] || data["discount.percentOff"]) {
     sanitized.discount = {
-      amountOffPaise: data.discount.amountOffPaise
-        ? Math.round(Number(data.discount.amountOffPaise))
+      amountOff: data["discount.amountOff"]
+        ? Math.round(Number(data["discount.amountOff"]))
         : 0,
-      percentOff: data.discount.percentOff
-        ? Math.floor(Number(data.discount.percentOff))
+      percentOff: data["discount.percentOff"]
+        ? Math.floor(Number(data["discount.percentOff"]))
         : 0,
-      validUntil: data.discount.validUntil
-        ? new Date(data.discount.validUntil)
+      validUntil: data["discount.validUntil"]
+        ? new Date(data["discount.validUntil"])
         : undefined,
-      discountCode: data.discount.discountCode?.trim(),
+      discountCode: data["discount.discountCode"]?.trim(),
     };
   }
 

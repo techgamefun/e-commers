@@ -70,7 +70,7 @@ const productSchema = new mongoose.Schema(
 
     // Discount information
     discount: {
-      amountOffPaise: {
+      amountOff: {
         type: Number,
         min: 0,
         default: 0,
@@ -112,7 +112,7 @@ const productSchema = new mongoose.Schema(
 
 // Virtual for computed sale price
 productSchema.virtual("salePrice").get(function () {
-  const amountDiscount = this.discount.amountOffPaise || 0;
+  const amountDiscount = this.discount.amountOff || 0;
   const percentDiscount =
     this.basePrice * ((this.discount.percentOff || 0) / 100);
 

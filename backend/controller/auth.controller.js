@@ -35,8 +35,8 @@ exports.signup = async (req, res) => {
       lastName: lastName.trim(),
       email: email.toLowerCase().trim(),
       phone: phone.trim(),
-      password: hashedPassword,
-      address: address?.trim(),
+      password,
+      address,
     });
 
     const token = signToken({ id: user._id });

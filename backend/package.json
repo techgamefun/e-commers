@@ -20,6 +20,7 @@
     "mongoose": "^8.15.2",
     "multer": "^2.0.1",
     "streamifier": "^0.1.1",
+    "stripe": "^18.2.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

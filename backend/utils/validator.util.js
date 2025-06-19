@@ -70,10 +70,10 @@ exports.validateProductInput = (data) => {
 
   // Discount validation (if provided)
   if (data.discount) {
-    if (data.discount.amountOffPaise !== undefined) {
+    if (data.discount.amountOff !== undefined) {
       if (
-        typeof data.discount.amountOffPaise !== "number" ||
-        data.discount.amountOffPaise < 0
+        typeof data.discount.amountOff !== "number" ||
+        data.discount.amountOff < 0
       ) {
         errors.push("Discount amount must be a non-negative number");
       }
@@ -101,8 +101,8 @@ exports.validateProductInput = (data) => {
 
     // Ensure discount doesn't exceed product price
     if (
-      data.discount.amountOffPaise &&
-      data.discount.amountOffPaise >= data.basePrice
+      data.discount.amountOff &&
+      data.discount.amountOff >= data.basePrice
     ) {
       errors.push(
         "Discount amount cannot be greater than or equal to base price"

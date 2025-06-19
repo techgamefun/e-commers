@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/axios";
 
 // Accepts initialData for editing and an onSubmit prop for handling form submission
 const ProductForm = ({ initialData = {}, onSubmit, onCancel }) => {
@@ -9,7 +9,9 @@ const ProductForm = ({ initialData = {}, onSubmit, onCancel }) => {
     basePrice: "",
     currency: "USD",
     stock: "",
-    discount: "",
+    discount: {
+      amountOff: "",
+    },
     imageAltTexts: [],
     ...initialData, // Pre-populate if initialData is provided (for editing)
   });
@@ -22,17 +24,27 @@ const ProductForm = ({ initialData = {}, onSubmit, onCancel }) => {
   // Effect to handle initial image previews if editing an existing product
   useEffect(() => {
     if (initialData.images && initialData.images.length > 0) {
-      setImagePreviews(initialData.images.map((img) => img.url)); // Assuming image objects have a 'url' property
+      setImagePreviews(initialData.images.map((img) => img.url));
     }
   }, [initialData.images]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name.startsWith("altText")) {
       const index = parseInt(name.split("-")[1]);
       const updatedAlts = [...formData.imageAltTexts];
       updatedAlts[index] = value;
       setFormData((prev) => ({ ...prev, imageAltTexts: updatedAlts }));
+    } else if (name.startsWith("discount.")) {
+      const key = name.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        discount: {
+          ...prev.discount,
+          [key]: value,
+        },
+      }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -64,7 +76,10 @@ const ProductForm = ({ initialData = {}, onSubmit, onCancel }) => {
     data.append("basePrice", formData.basePrice);
     data.append("currency", formData.currency);
     data.append("stock", formData.stock);
-    data.append("discount", formData.discount);
+    data.append("discount.amountOff", formData.discount.amountOff);
+
+    console.log(formData.discount.amountOff);
+
     if (initialData._id) {
       // For editing, pass the product ID
       data.append("productId", initialData._id);
@@ -80,12 +95,13 @@ const ProductForm = ({ initialData = {}, onSubmit, onCancel }) => {
       const endpoint = initialData._id
         ? `/product/update/${initialData._id}`
         : "/product/create";
-      const res = await axios.post(endpoint, data, {
+      const res = await api.post(endpoint, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       setMessage(res.data.message);
+      setFormData(null);
       if (onSubmit) {
         onSubmit(res.data.product); // Pass the created/updated product back
       }
@@ -187,14 +203,14 @@ const ProductForm = ({ initialData = {}, onSubmit, onCancel }) => {
           onChange={handleChange}
         />
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Discount (%)
+          Discount (Ammount)
         </label>
         <input
           type="number"
-          name="discount"
+          name="discount.amountOff"
           placeholder="Discount Percentage"
           className="w-full mb-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={formData.discount}
+          value={formData.discount.amountOff}
           onChange={handleChange}
         />
 

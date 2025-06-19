@@ -72,10 +72,10 @@ const Navbar = () => {
                   Login
                 </Link>
                 <Link
-                  to="/register"
+                  to="/SignUp"
                   className="text-gray-500 hover:text-gray-700 text-sm font-medium"
                 >
-                  Register
+                  SignUp
                 </Link>
               </div>
             )}

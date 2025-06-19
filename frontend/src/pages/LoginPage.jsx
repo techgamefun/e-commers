@@ -21,7 +21,7 @@ function LoginPage() {
       // Assuming the API returns user data on success
 
       console.log(response.data.user.role);
-      login(response.data.user);
+      login(response.data);
 
       if (response.data.user.role == "admin") {
         return navigate("/admin");

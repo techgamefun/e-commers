@@ -6,8 +6,8 @@ const AuthContext = createContext();
 // Main provider component
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -18,21 +18,23 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("user");
       }
     }
+    setLoading(false); // Finish loading even if no user
   }, []);
 
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData.user);
+    localStorage.setItem("user", JSON.stringify(userData.user));
+    localStorage.setItem("token", userData.token); // no need to JSON.stringify tokens
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
-  // The crucial part - must pass value prop
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
